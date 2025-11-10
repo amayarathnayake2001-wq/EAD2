@@ -1,43 +1,20 @@
-import { useState, useEffect } from "react";
-import api from "./axios";
-import Login from "./Login";
+import React from 'react'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import { AuthProvider } from './contexts/AuthContext.jsx'
+import Login from './pages/Login.jsx'
+import Register from './pages/Register.jsx'
+import Appointments from './pages/Appointments.jsx'
+import ProtectedRoute from './routes/ProtectedRoute.jsx'
 
-function App() {
-    const [appointments, setAppointments] = useState([]);
-    const [loggedIn, setLoggedIn] = useState(false);
-
-    useEffect(() => {
-        if (loggedIn) {
-            loadAppointments();
-        }
-    }, [loggedIn]);
-
-    const loadAppointments = async () => {
-        try {
-            const res = await api.get("/appointments");
-            setAppointments(res.data);
-        } catch (err) {
-            console.error("Error loading appointments", err);
-        }
-    };
-
-    if (!loggedIn) {
-        return <Login setLoggedIn={setLoggedIn} />;
-    }
-
-    return (
-        <div style={{ padding: "30px" }}>
-            <h1>Appointments</h1>
-            <ul>
-                {appointments.map((a) => (
-                    <li key={a.id}>
-                        {a.name} - {a.date} - {a.time}
-                    </li>
-                ))}
-            </ul>
-        </div>
-    );
+export default function App() {
+  return (
+    <AuthProvider>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/" element={<ProtectedRoute><Appointments /></ProtectedRoute>} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </AuthProvider>
+  )
 }
-
-export default App;
-
